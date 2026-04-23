@@ -789,7 +789,8 @@
     favorites: [],
     history: [],
     currentTrip: null,
-    checkedItems: {}
+    checkedItems: {},
+    activeHistoryIndex: -1
   };
  
   // ——— PACKING DATA ———
@@ -936,6 +937,7 @@
  
     state.currentTrip = { dest:dest, days:days, daysLabel:daysLabel, type:type, typeName:typeName, data:data };
     state.checkedItems = {};
+    state.activeHistoryIndex = -1;
  
     // Update result page
     document.getElementById('res-dest').textContent = dest;
@@ -1024,6 +1026,11 @@
     document.getElementById('prog-fill').style.width = pct+'%';
     document.getElementById('prog-text').textContent = done.length+' / '+all.length+' item';
     if(pct === 100 && all.length > 0) showToast('Semua barang sudah dikemas! Selamat berlibur! 🎉','🎊');
+    // Sync checkedItems ke riwayat yang sedang aktif
+    if(state.activeHistoryIndex >= 0 && state.history[state.activeHistoryIndex]){
+      state.history[state.activeHistoryIndex].checkedItems = JSON.parse(JSON.stringify(state.checkedItems));
+      renderHistory();
+    }
   }
  
   // ——— FAVORITES ———
@@ -1080,8 +1087,12 @@
     var entry = {
       dest: state.currentTrip.dest,
       dur: state.currentTrip.daysLabel,
+      days: state.currentTrip.days,
       type: state.currentTrip.typeName,
-      date: today()
+      tripType: state.currentTrip.type,
+      date: today(),
+      data: JSON.parse(JSON.stringify(state.currentTrip.data)),
+      checkedItems: JSON.parse(JSON.stringify(state.checkedItems))
     };
     state.history.unshift(entry);
     renderHistory();
@@ -1095,11 +1106,19 @@
       return;
     }
     cont.innerHTML = state.history.map(function(h, i){
+      var total = 0, done = 0;
+      Object.keys(h.data).forEach(function(cat){ total += h.data[cat].items.length; });
+      Object.keys(h.checkedItems).forEach(function(k){ if(h.checkedItems[k]) done++; });
+      var pct = total ? Math.round((done/total)*100) : 0;
       return '<div class="history-card" onclick="loadHistory('+i+')">' +
         '<div class="history-date">'+h.date+'</div>' +
         '<div class="history-info">' +
           '<div class="history-dest">✈️ '+h.dest+'</div>' +
           '<div class="history-dur">'+h.dur+' · '+h.type+'</div>' +
+          '<div style="margin-top:6px;height:4px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;width:100%;">' +
+            '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--green-500),var(--yellow-400));border-radius:100px;"></div>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Packing: '+done+'/'+total+' item ('+pct+'%)</div>' +
         '</div>' +
         '<span class="history-arr">›</span>' +
       '</div>';
@@ -1107,7 +1126,31 @@
   }
  
   function loadHistory(i){
-    showToast('Memuat riwayat perjalanan ke '+state.history[i].dest,'📂');
+    var h = state.history[i];
+    state.activeHistoryIndex = i;
+    // Restore trip state dari riwayat
+    state.currentTrip = {
+      dest: h.dest,
+      days: h.days,
+      daysLabel: h.dur,
+      type: h.tripType,
+      typeName: h.type,
+      data: JSON.parse(JSON.stringify(h.data))
+    };
+    state.checkedItems = JSON.parse(JSON.stringify(h.checkedItems));
+ 
+    // Update result page
+    document.getElementById('res-dest').textContent = h.dest;
+    document.getElementById('res-dur').textContent = h.dur;
+    document.getElementById('res-type').textContent = h.type;
+    document.getElementById('res-sub').textContent = 'Riwayat perjalanan '+h.days+' hari ke '+h.dest+' — '+h.date;
+ 
+    renderChecklist(state.currentTrip.data);
+    renderCards(state.currentTrip.data);
+    updateProgress();
+ 
+    switchPage('result', document.querySelectorAll('.nav-btn')[1]);
+    showToast('Memuat riwayat perjalanan ke '+h.dest,'📂');
   }
  
   // ——— PWA SERVICE WORKER ———
