@@ -10,6 +10,37 @@
   "theme_color": "#4F46E5",
   "orientation": "portrait",
   "lang": "id",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing" 
+  },
+  "file_handlers": [],
+  "protocol_handlers": [],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "widgets": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "./index.html"
+  },
+  "scope_extensions": [],
   "icons": [
     {
       "src": "icons/Ikon-192x192.png",
