@@ -12,18 +12,35 @@
   "lang": "id",
   "dir": "ltr",
   "prefer_related_applications": false,
-  "related_applications": [],
-  "iarc_rating_id": "",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "./index.html"
+    }
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "display_override": [
     "standalone",
     "minimal-ui",
     "browser"
   ],
-  "launch_handler": {
-    "client_mode": "navigate-existing" 
+  "launch_handler": { 
+    "client_mode": "navigate-existing"
   },
-  "file_handlers": [],
-  "protocol_handlers": [],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "text/plain": [".txt"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+voyago",
+      "url": "./index.html?url=%s"
+    }
+  ],
   "share_target": {
     "action": "./index.html",
     "method": "GET",
@@ -33,14 +50,42 @@
       "url": "url"
     }
   },
-  "widgets": [],
+  "widgets": [
+    {
+      "name": "VOYAGO Widget",
+      "description": "VOYAGO packing assistant widget",
+      "tag": "voyago-widget",
+      "ms_ac_template": "./widget-template.json",
+      "data": "./widget-data.json",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "icons/screenshot1.png",
+          "sizes": "1080x1920",
+          "label": "VOYAGO Widget Screenshot"
+        }
+      ],
+      "icons": [
+        {
+          "src": "icons/Ikon-192x192.png",
+          "sizes": "192x192"
+        }
+      ],
+      "auth": false,
+      "update": 86400
+    }
+  ],
   "edge_side_panel": {
     "preferred_width": 400
   },
   "note_taking": {
     "new_note_url": "./index.html"
   },
-  "scope_extensions": [],
+  "scope_extensions": [
+    {
+      "origin": "https://*.voyago.app"
+    }
+  ],
   "icons": [
     {
       "src": "icons/Ikon-192x192.png",
