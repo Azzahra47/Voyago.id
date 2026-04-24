@@ -88,7 +88,7 @@
   ],
   "icons": [
     {
-      "src": "icons/newicon (1).png",
+      "src": "icons/newicon192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
@@ -117,7 +117,7 @@
       "url": "./index.html",
       "icons": [
         {
-          "src": "icons/newicon (1).png",
+          "src": "icons/newicon192.png",
           "sizes": "192x192"
         }
       ]
