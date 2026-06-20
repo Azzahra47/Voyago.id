@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#16a34a" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icons/newicon512.png" type="image/png" />
-  <title>VOYAGO — Pack Smart, Travel Far</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voyago - Smart Packing Assistant</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+    /* Variabel Warna Sesuai Request */
     :root {
       --green-50: #f0fdf4;
       --green-100: #dcfce7;
@@ -37,1134 +27,599 @@
       --dark-3: #243324;
       --text-light: #f0fdf4;
       --text-muted: #86efac;
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 22px;
-      --radius-xl: 32px;
     }
- 
-    html { scroll-behavior: smooth; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--dark);
+      background-color: var(--dark);
       color: var(--text-light);
       min-height: 100vh;
-      overflow-x: hidden;
-    }
- 
-    /* ——— NOTIFICATION TOAST ——— */
-    #toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      background: linear-gradient(135deg, var(--green-600), var(--green-700));
-      color: white;
-      padding: 14px 22px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transform: translateX(140%);
-      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-      max-width: 320px;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
     }
-    #toast.show { transform: translateX(0); }
-    #toast .toast-icon { font-size: 20px; }
- 
-    /* ——— NAV ——— */
+
+    /* Navigation Bar */
     nav {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(15,26,15,0.96);
-      backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(74,222,128,0.15);
+      background-color: var(--dark-2);
+      padding: 1rem 2rem;
       display: flex;
-      justify-content: space-around;
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-      z-index: 1000;
-    }
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      color: #4b5f4b;
-      cursor: pointer;
-      padding: 6px 16px;
-      border-radius: var(--radius-sm);
-      transition: color 0.2s;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      border-bottom: 2px solid var(--green-900);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .nav-btn .nav-icon { font-size: 22px; transition: transform 0.2s; }
-    .nav-btn.active { color: var(--yellow-400); }
-    .nav-btn.active .nav-icon { transform: scale(1.15); }
-    .nav-btn:hover { color: var(--green-400); }
- 
-    /* ——— PAGES ——— */
-    .page { display: none; min-height: 100vh; padding-bottom: 90px; }
-    .page.active { display: block; animation: fadeUp 0.4s ease; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
- 
-    /* ——— HERO BANNER ——— */
-    .hero {
-      position: relative;
-      height: 320px;
-      overflow: hidden;
-      background: var(--dark-2);
-    }
-    .hero-bg {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, #0d2b1a 0%, #1a4a2a 40%, #0f3320 70%, #1e5c30 100%);
-    }
-    .hero-pattern {
-      position: absolute; inset: 0;
-      opacity: 0.06;
-      background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%);
-      background-size: 20px 20px;
-    }
-    .hero-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-    }
-    .hero-orb-1 { width: 260px; height: 260px; background: rgba(74,222,128,0.18); top: -60px; right: -40px; }
-    .hero-orb-2 { width: 180px; height: 180px; background: rgba(250,204,21,0.12); bottom: -40px; left: 20px; }
-    .hero-content {
-      position: relative;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 24px 32px;
-    }
-    .hero-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(250,204,21,0.15);
-      border: 1px solid rgba(250,204,21,0.3);
-      color: var(--yellow-400);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 12px;
-      width: fit-content;
-    }
-    .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(36px, 8vw, 52px);
-      font-weight: 900;
-      line-height: 1.05;
-      color: white;
-      letter-spacing: -1px;
-    }
-    .hero-title span { color: var(--yellow-400); }
-    .hero-sub {
-      margin-top: 10px;
-      font-size: 14px;
-      color: var(--text-muted);
-      font-weight: 300;
-      letter-spacing: 0.3px;
-    }
-    .hero-wave {
-      position: absolute;
-      bottom: -2px; left: 0; right: 0;
-      height: 48px;
-    }
- 
-    /* ——— LOGIN SECTION ——— */
-    .login-section {
-      background: var(--dark-2);
-      margin: 0 16px;
-      border-radius: var(--radius-xl);
-      padding: 24px 20px;
-      border: 1px solid rgba(74,222,128,0.12);
-      position: relative;
-      z-index: 2;
-      margin-top: -30px;
-    }
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+
+    nav .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
       color: var(--green-400);
-      margin-bottom: 16px;
+      letter-spacing: 1px;
     }
-    .login-row {
+
+    nav ul {
       display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      flex-wrap: wrap;
+      list-style: none;
+      gap: 1.5rem;
     }
-    .field-group { flex: 1; min-width: 140px; }
-    .field-label {
-      font-size: 11px;
-      font-weight: 600;
+
+    nav ul li a {
       color: var(--text-muted);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+
+    nav ul li a:hover, nav ul li a.active {
+      color: var(--yellow-400);
+    }
+
+    /* Container Utama */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Pola Halaman SPA */
+    .page {
+      display: none;
+    }
+
+    .page.active-page {
       display: block;
     }
-    .field-input {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(74,222,128,0.2);
-      color: var(--text-light);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .field-input:focus {
-      border-color: var(--green-400);
-      background: rgba(74,222,128,0.06);
-    }
-    .field-input::placeholder { color: #3d5a3d; }
-    .field-input option { background: var(--dark-2); color: var(--text-light); }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, var(--green-500), var(--green-600));
-      color: white;
-      border: none;
-      padding: 12px 22px;
-      border-radius: var(--radius-md);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      white-space: nowrap;
-      letter-spacing: 0.3px;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,0.3); }
-    .btn-primary:active { transform: translateY(0); }
- 
-    /* ——— SEARCH SECTION ——— */
-    .search-section {
-      padding: 24px 16px 0;
-    }
-    .search-card {
-      background: var(--dark-2);
-      border: 1px solid rgba(74,222,128,0.12);
-      border-radius: var(--radius-xl);
-      padding: 22px 20px;
-    }
-    .search-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .search-grid .field-group:first-child { grid-column: 1 / -1; }
-    .search-footer { display: flex; justify-content: flex-end; }
- 
-    /* ——— RESULT PAGE ——— */
-    .result-header {
+
+    /* --- LANDING PAGE STYLING --- */
+    .hero {
+      text-align: center;
+      padding: 5rem 1rem;
       background: linear-gradient(135deg, var(--dark-2), var(--dark-3));
-      padding: 56px 20px 24px;
-      border-bottom: 1px solid rgba(74,222,128,0.1);
+      border-radius: 15px;
+      border: 1px solid var(--green-800);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    .result-meta {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-    .meta-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(74,222,128,0.1);
-      border: 1px solid rgba(74,222,128,0.2);
+
+    .hero h1 {
+      font-size: 3.5rem;
       color: var(--green-400);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 12px;
-      border-radius: 100px;
+      margin-bottom: 1rem;
     }
-    .result-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 700;
-      color: white;
-      margin-bottom: 4px;
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--green-100);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .result-sub { font-size: 13px; color: var(--text-muted); }
- 
-    .checklist-section {
-      padding: 20px 16px;
-    }
-    .checklist-category {
-      margin-bottom: 24px;
-    }
-    .cat-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .cat-icon {
-      width: 36px; height: 36px;
-      background: rgba(250,204,21,0.12);
-      border: 1px solid rgba(250,204,21,0.25);
-      border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-    }
-    .cat-title { font-size: 15px; font-weight: 600; color: var(--text-light); }
-    .cat-count { font-size: 12px; color: var(--text-muted); margin-left: auto; }
- 
-    .checklist-items { display: flex; flex-direction: column; gap: 8px; }
-    .check-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--dark-2);
-      border: 1px solid rgba(74,222,128,0.1);
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      user-select: none;
-    }
-    .check-item:hover { border-color: rgba(74,222,128,0.3); }
-    .check-item.checked {
-      background: rgba(74,222,128,0.06);
-      border-color: rgba(74,222,128,0.3);
-    }
-    .check-box {
-      width: 20px; height: 20px;
-      border: 2px solid rgba(74,222,128,0.35);
-      border-radius: 6px;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s;
-    }
-    .check-item.checked .check-box {
-      background: var(--green-500);
-      border-color: var(--green-500);
-    }
-    .check-tick { color: white; font-size: 13px; display: none; }
-    .check-item.checked .check-tick { display: block; }
-    .check-text { flex: 1; }
-    .check-name { font-size: 14px; font-weight: 500; color: var(--text-light); }
-    .check-item.checked .check-name { text-decoration: line-through; color: #4b7a4b; }
-    .check-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .check-qty {
-      font-size: 12px;
-      font-weight: 600;
-      background: rgba(250,204,21,0.12);
-      color: var(--yellow-400);
-      border: 1px solid rgba(250,204,21,0.2);
-      padding: 3px 9px;
-      border-radius: 100px;
-    }
-    .fav-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
-      transition: transform 0.2s;
-      padding: 2px;
-    }
-    .fav-btn:hover { transform: scale(1.2); }
- 
-    /* ——— CARD SECTION ——— */
-    .card-section { padding: 24px 16px 0; }
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: white;
-    }
-    .section-badge {
-      background: rgba(250,204,21,0.12);
-      border: 1px solid rgba(250,204,21,0.25);
-      color: var(--yellow-400);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 100px;
-    }
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 14px;
-    }
-    .item-card {
-      background: var(--dark-2);
-      border: 1px solid rgba(74,222,128,0.1);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .item-card:hover { transform: translateY(-3px); border-color: rgba(74,222,128,0.3); }
-    .item-card-img {
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 52px;
-      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(250,204,21,0.05));
-      border-bottom: 1px solid rgba(74,222,128,0.08);
-    }
-    .item-card-body { padding: 14px 16px; }
-    .item-card-name { font-size: 15px; font-weight: 600; color: white; margin-bottom: 4px; }
-    .item-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-    .item-card-footer {
-      padding: 10px 16px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
- 
-    /* ——— SAVE BAR ——— */
-    .save-bar {
-      position: sticky;
-      bottom: 80px;
-      margin: 20px 16px;
-      background: linear-gradient(135deg, var(--green-700), var(--green-800));
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border: 1px solid rgba(74,222,128,0.25);
-    }
-    .save-bar-text { font-size: 13px; font-weight: 500; color: var(--green-100); }
-    .save-bar-text strong { color: white; display: block; font-size: 15px; }
-    .btn-yellow {
-      background: linear-gradient(135deg, var(--yellow-400), var(--yellow-500));
+
+    .btn {
+      background-color: var(--yellow-500);
       color: var(--dark);
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      font-weight: bold;
       border: none;
-      padding: 10px 20px;
-      border-radius: var(--radius-md);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
+      border-radius: 25px;
       cursor: pointer;
-      transition: transform 0.15s;
-      white-space: nowrap;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
     }
-    .btn-yellow:hover { transform: scale(1.04); }
- 
-    /* ——— FAVORITES PAGE ——— */
-    .page-header {
-      padding: 52px 20px 24px;
-      background: var(--dark-2);
-      border-bottom: 1px solid rgba(74,222,128,0.1);
+
+    .btn:hover {
+      background-color: var(--yellow-400);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(234, 179, 8, 0.4);
     }
-    .page-header-tag { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--green-400); margin-bottom: 8px; }
-    .page-header-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 700;
+
+    .btn-secondary {
+      background-color: var(--green-600);
       color: white;
     }
-    .fav-list { padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
-    .fav-card {
-      background: var(--dark-2);
-      border: 1px solid rgba(74,222,128,0.12);
-      border-radius: var(--radius-lg);
-      padding: 16px 18px;
+    .btn-secondary:hover {
+      background-color: var(--green-500);
+      box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4);
+    }
+
+    /* --- INVENTORY PAGE STYLING --- */
+    .card {
+      background-color: var(--dark-2);
+      border: 1px solid var(--green-900);
+      border-radius: 10px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      color: var(--green-400);
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--green-800);
+      padding-bottom: 0.5rem;
+    }
+
+    .form-group {
       display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: border-color 0.2s;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-end;
     }
-    .fav-card:hover { border-color: rgba(74,222,128,0.3); }
-    .fav-card-icon { font-size: 32px; flex-shrink: 0; }
-    .fav-card-body { flex: 1; }
-    .fav-card-name { font-size: 15px; font-weight: 600; color: white; }
-    .fav-card-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-    .fav-remove {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.2);
-      color: #f87171;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .fav-remove:hover { background: rgba(239,68,68,0.2); }
- 
-    /* ——— HISTORY PAGE ——— */
-    .history-list { padding: 20px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .history-card {
-      background: var(--dark-2);
-      border: 1px solid rgba(74,222,128,0.1);
-      border-radius: var(--radius-md);
-      padding: 14px 18px;
+
+    .input-field {
+      flex: 1;
+      min-width: 200px;
       display: flex;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      transition: border-color 0.2s;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    .history-card:hover { border-color: rgba(74,222,128,0.3); }
-    .history-date {
-      background: rgba(250,204,21,0.1);
-      border: 1px solid rgba(250,204,21,0.2);
-      color: var(--yellow-400);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      text-align: center;
-      min-width: 70px;
-    }
-    .history-info { flex: 1; }
-    .history-dest { font-size: 14px; font-weight: 600; color: white; }
-    .history-dur { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .history-arr { color: var(--green-400); font-size: 18px; }
- 
-    /* ——— EMPTY STATE ——— */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
+
+    label {
+      font-size: 0.9rem;
       color: var(--text-muted);
     }
-    .empty-icon { font-size: 56px; margin-bottom: 16px; }
-    .empty-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 8px; }
-    .empty-desc { font-size: 14px; line-height: 1.6; }
- 
-    /* ——— PROGRESS ——— */
-    .progress-bar-wrap { padding: 0 16px 16px; }
-    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-    .progress-label strong { color: var(--green-400); }
-    .progress-track {
-      height: 6px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 100px;
-      overflow: hidden;
+
+    input, select {
+      background-color: var(--dark-3);
+      border: 1px solid var(--green-700);
+      color: white;
+      padding: 0.75rem;
+      border-radius: 5px;
+      font-size: 1rem;
     }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--green-500), var(--yellow-400));
-      border-radius: 100px;
-      transition: width 0.4s ease;
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--yellow-400);
     }
- 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(74,222,128,0.2); border-radius: 100px; }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .item-card {
+      background-color: var(--dark-3);
+      border-left: 4px solid var(--green-500);
+      padding: 1rem;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info h4 {
+      color: white;
+    }
+    .item-info span {
+      font-size: 0.85rem;
+      color: var(--yellow-300);
+      background-color: rgba(22, 101, 52, 0.4);
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* --- MAIN PAGE (GENERATOR) STYLING --- */
+    .result-section {
+      margin-top: 2rem;
+      display: none;
+    }
+
+    .packing-list {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .packing-list li {
+      background-color: var(--dark-3);
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .packing-list input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--green-500);
+      cursor: pointer;
+    }
+
+    .packing-list input[type="checkbox"]:checked + span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* --- HISTORY STYLING --- */
+    .history-item {
+      background-color: var(--dark-3);
+      border: 1px solid var(--green-800);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      color: var(--yellow-400);
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background-color: var(--dark-2);
+      border-top: 1px solid var(--green-900);
+      color: var(--text-muted);
+      margin-top: auto;
+    }
   </style>
 </head>
 <body>
- 
-<!-- TOAST NOTIFICATION -->
-<div id="toast">
-  <span class="toast-icon">✈️</span>
-  <span id="toast-msg">For Your Trip — Ready to Go!</span>
-</div>
- 
-<!-- ============ PAGE: HOME ============ -->
-<div class="page active" id="page-home">
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-pattern"></div>
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
-    <div class="hero-content">
-      <div class="hero-tag">🌿 Smart Packing Assistant</div>
-      <h1 class="hero-title">Pack Smart,<br><span>Travel Far.</span></h1>
-      <p class="hero-sub">Never forget a thing — VOYAGO plans it all.</p>
-    </div>
-    <svg class="hero-wave" viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-      <path d="M0 48 C360 0 1080 0 1440 48 L1440 48 L0 48Z" fill="#0f1a0f"/>
-    </svg>
-  </div>
- 
-  <!-- LOGIN -->
-  <div class="login-section">
-    <div class="section-label">👤 Profil Pengguna</div>
-    <div class="login-row">
-      <div class="field-group">
-        <label class="field-label">Nama Kamu</label>
-        <input class="field-input" id="inp-name" type="text" placeholder="Masukkan nama..." />
-      </div>
-      <button class="btn-primary" onclick="loginUser()">
-        <span>Masuk</span> <span>→</span>
-      </button>
-    </div>
-    <div id="logged-in-info" style="display:none; margin-top: 12px; font-size: 13px; color: var(--green-400); font-weight: 500;"></div>
-  </div>
- 
-  <!-- SEARCH SECTION -->
-  <div class="search-section">
-    <div class="search-card">
-      <div class="section-label">🗺️ Rencanakan Perjalanan</div>
-      <div class="search-grid">
-        <div class="field-group">
-          <label class="field-label">Destinasi Wisata</label>
-          <input class="field-input" id="inp-dest" type="text" placeholder="Contoh: Bali, Yogyakarta..." />
-        </div>
-        <div class="field-group">
-          <label class="field-label">Durasi (Hari)</label>
-          <select class="field-input" id="inp-days">
-            <option value="1">1 Hari</option>
-            <option value="2">2 Hari 1 Malam</option>
-            <option value="3">3 Hari 2 Malam</option>
-            <option value="4">4 Hari 3 Malam</option>
-            <option value="5">5 Hari 4 Malam</option>
-            <option value="7">7 Hari 6 Malam</option>
-            <option value="10">10 Hari 9 Malam</option>
-            <option value="14">14 Hari (2 Minggu)</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Jenis Wisata</label>
-          <select class="field-input" id="inp-type">
-            <option value="leisure">🏖️ Leisure / Pantai</option>
-            <option value="adventure">🏔️ Petualangan / Alam</option>
-            <option value="city">🏙️ City Tour / Urban</option>
-            <option value="culture">🏛️ Budaya / Heritage</option>
-          </select>
-        </div>
-      </div>
-      <div class="search-footer">
-        <button class="btn-primary" onclick="generatePacking()">
-          <span>🧳</span> <span>Buat Daftar Bawaan</span>
-        </button>
-      </div>
-    </div>
-  </div>
- 
-  <!-- HOME CARDS PREVIEW -->
-  <div class="card-section" id="home-preview">
-    <div class="section-header">
-      <div class="section-title">Tips Perjalanan</div>
-    </div>
-    <div class="cards-grid">
-      <div class="item-card">
-        <div class="item-card-img">🌞</div>
-        <div class="item-card-body">
-          <div class="item-card-name">Perlindungan Matahari</div>
-          <div class="item-card-desc">Selalu bawa sunscreen SPF 50+, kacamata hitam, dan topi untuk perjalanan siang hari.</div>
-        </div>
-      </div>
-      <div class="item-card">
-        <div class="item-card-img">💊</div>
-        <div class="item-card-body">
-          <div class="item-card-name">P3K Darurat</div>
-          <div class="item-card-desc">Kotak obat kecil dengan plester, obat flu, dan antasida wajib masuk koper.</div>
-        </div>
-      </div>
-      <div class="item-card">
-        <div class="item-card-img">🔌</div>
-        <div class="item-card-body">
-          <div class="item-card-name">Power Bank</div>
-          <div class="item-card-desc">Bawa power bank minimal 10.000 mAh agar gadget tidak mati di jalan.</div>
+
+  <nav>
+    <div class="logo">Voyago</div>
+    <ul>
+      <li><a onclick="switchPage('landing')" id="nav-landing" class="active">Home</a></li>
+      <li><a onclick="switchPage('inventory')" id="nav-inventory">Lemari Barang</a></li>
+      <li><a onclick="switchPage('main')" id="nav-main">Asisten Packing</a></li>
+      <li><a onclick="switchPage('history')" id="nav-history">Riwayat</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+
+    <div id="page-landing" class="page active-page">
+      <div class="hero">
+        <h1>Packing Pintar Tanpa Ribet</h1>
+        <p>Voyago membantu menganalisis barang bawaan Anda secara otomatis berdasarkan jenis acara dan durasi perjalanan menggunakan lemari digital kustom Anda.</p>
+        <div style="display: flex; justify-content: center; gap: 1rem;">
+          <button class="btn" onclick="switchPage('inventory')">Isi Lemari Barang</button>
+          <button class="btn btn-secondary" onclick="switchPage('main')">Mulai Packing</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
- 
-<!-- ============ PAGE: RESULT ============ -->
-<div class="page" id="page-result">
-  <div class="result-header">
-    <div class="result-meta">
-      <span class="meta-pill">🗺️ <span id="res-dest">—</span></span>
-      <span class="meta-pill">📅 <span id="res-dur">—</span></span>
-      <span class="meta-pill">🎒 <span id="res-type">—</span></span>
+
+    <div id="page-inventory" class="page">
+      <div class="card">
+        <h2>Kustomisasi Lemari Barang Digital Anda</h2>
+        <p style="margin-bottom: 1rem; color: var(--text-muted);">Masukkan semua aset barang yang Anda miliki. Kategorikan sesuai kecocokan aktivitasnya agar Voyago bisa merekomendasikannya nanti.</p>
+        
+        <form id="inventory-form" onsubmit="addItem(event)">
+          <div class="form-group">
+            <div class="input-field">
+              <label for="item-name">Nama Barang</label>
+              <input type="text" id="item-name" placeholder="Contoh: Kemeja Batik, Sunscreen, Kacamata Hitam" required>
+            </div>
+            <div class="input-field" style="flex: 0 0 120px; min-width: 100px;">
+              <label for="item-qty">Stok Jumlah</label>
+              <input type="number" id="item-qty" min="1" value="1" required>
+            </div>
+            <div class="input-field">
+              <label for="item-occasion">Kategori Acara / Cocok Untuk</label>
+              <select id="item-occasion" required>
+                <option value="pantai"> Liburan Pantai / Santai</option>
+                <option value="formal"> Acara Formal / Dinas</option>
+                <option value="gunung"> Gunung / Outdoor</option>
+                <option value="umum"> Umum / Semua Acara (Esensial)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn" style="height: 48px; border-radius: 5px;">+ Tambah</button>
+          </div>
+        </form>
+
+        <h3>Isi Lemari Saat Ini:</h3>
+        <div class="item-grid" id="inventory-list">
+          </div>
+      </div>
     </div>
-    <div class="result-title">Daftar Barang Bawaan</div>
-    <div class="result-sub" id="res-sub">Semua yang kamu butuhkan, sudah terkalkulasi otomatis.</div>
-  </div>
- 
-  <div class="progress-bar-wrap" style="padding-top:16px;">
-    <div class="progress-label">
-      <span>Progress Packing</span>
-      <strong id="prog-text">0 / 0 item</strong>
+
+    <div id="page-main" class="page">
+      <div class="card">
+        <h2>Rencanakan Perjalanan Anda</h2>
+        <div class="form-group">
+          <div class="input-field">
+            <label for="trip-occasion">Mau pergi ke acara apa?</label>
+            <select id="trip-occasion">
+              <option value="pantai"> Liburan ke Pantai / Santai</option>
+              <option value="formal"> Acara Resmi / Formal / Bisnis</option>
+              <option value="gunung"> Kegiatan Outdoor</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label for="trip-duration">Berapa hari perjalanan Anda?</label>
+            <input type="number" id="trip-duration" min="1" value="1">
+          </div>
+          <button class="btn" onclick="generatePackingList()" style="height: 48px; border-radius: 5px;">Analisis Bawaan</button>
+        </div>
+      </div>
+
+      <div class="card result-section" id="result-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--green-800); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+          <h2 style="border-bottom: none; margin-bottom: 0;" id="result-title">Rekomendasi Voyago</h2>
+          <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="saveCurrentTrip()">💾 Simpan Rencana Ini</button>
+        </div>
+        <p style="color: var(--yellow-300); font-weight: 500;" id="result-summary"></p>
+        <ul class="packing-list" id="packing-checklist">
+          </ul>
+      </div>
     </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+
+    <div id="page-history" class="page">
+      <div class="card">
+        <h2>Riwayat Packing Tersimpan</h2>
+        <div id="history-container">
+          </div>
+      </div>
     </div>
+
   </div>
- 
-  <div class="checklist-section" id="checklist-container"></div>
- 
-  <div class="card-section">
-    <div class="section-header">
-      <div class="section-title">Barang Unggulan</div>
-      <div class="section-badge" id="badge-count">0 item</div>
-    </div>
-    <div class="cards-grid" id="cards-container"></div>
-  </div>
- 
-  <div class="save-bar">
-    <div class="save-bar-text">
-      <strong>💾 Simpan Perjalanan Ini</strong>
-      Tambahkan ke riwayat kamu
-    </div>
-    <button class="btn-yellow" onclick="saveToHistory()">Simpan ✓</button>
-  </div>
-</div>
- 
-<!-- ============ PAGE: FAVORITES ============ -->
-<div class="page" id="page-fav">
-  <div class="page-header">
-    <div class="page-header-tag">⭐ Koleksi Favorit</div>
-    <div class="page-header-title">Barang Favoritmu</div>
-  </div>
-  <div class="fav-list" id="fav-list">
-    <div class="empty-state">
-      <div class="empty-icon">⭐</div>
-      <div class="empty-title">Belum Ada Favorit</div>
-      <div class="empty-desc">Tap ikon bintang pada barang bawaan untuk menyimpannya di sini.</div>
-    </div>
-  </div>
-</div>
- 
-<!-- ============ PAGE: HISTORY ============ -->
-<div class="page" id="page-history">
-  <div class="page-header">
-    <div class="page-header-tag">🕐 Riwayat Perjalanan</div>
-    <div class="page-header-title">Jejak Petualanganmu</div>
-  </div>
-  <div class="history-list" id="history-list">
-    <div class="empty-state">
-      <div class="empty-icon">🗺️</div>
-      <div class="empty-title">Belum Ada Riwayat</div>
-      <div class="empty-desc">Buat rencana perjalanan dan simpan untuk melihatnya di sini.</div>
-    </div>
-  </div>
-</div>
- 
-<!-- BOTTOM NAV -->
-<nav>
-  <button class="nav-btn active" onclick="switchPage('home',this)">
-    <span class="nav-icon">🏠</span><span>Beranda</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('result',this)">
-    <span class="nav-icon">🧳</span><span>Packing</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('fav',this)">
-    <span class="nav-icon">⭐</span><span>Favorit</span>
-  </button>
-  <button class="nav-btn" onclick="switchPage('history',this)">
-    <span class="nav-icon">🕐</span><span>Riwayat</span>
-  </button>
-</nav>
- 
-<script>
-  // ——— STATE ———
-  var state = {
-    user: null,
-    favorites: [],
-    history: [],
-    currentTrip: null,
-    checkedItems: {},
-    activeHistoryIndex: -1
-  };
- 
-  // ——— PACKING DATA ———
-  var BASE_ITEMS = {
-    pakaian: {
-      label: "Pakaian & Fashion", icon: "👕",
-      items: [
-        { id:"baju", name:"Baju / Atasan", emoji:"👕", desc:"Pakaian kasual atau formal sesuai kebutuhan", baseQty:2, unit:"pasang" },
-        { id:"celana", name:"Celana Panjang", emoji:"👖", desc:"Celana nyaman untuk jalan-jalan seharian", baseQty:1, unit:"buah" },
-        { id:"celana_pendek", name:"Celana Pendek", emoji:"🩳", desc:"Ideal untuk cuaca panas atau aktivitas santai", baseQty:1, unit:"buah" },
-        { id:"pakaian_dalam", name:"Pakaian Dalam", emoji:"🩲", desc:"Ganti setiap hari untuk kebersihan", baseQty:2, unit:"pasang" },
-        { id:"kaos_kaki", name:"Kaos Kaki", emoji:"🧦", desc:"Pastikan bersih dan nyaman", baseQty:2, unit:"pasang" },
-        { id:"piyama", name:"Piyama / Baju Tidur", emoji:"🌙", desc:"Untuk istirahat yang nyaman", baseQty:1, unit:"set" },
-      ]
-    },
-    sepatu: {
-      label: "Alas Kaki", icon: "👟",
-      items: [
-        { id:"sneaker", name:"Sepatu Kasual / Sneaker", emoji:"👟", desc:"Nyaman untuk berjalan jauh", baseQty:1, unit:"pasang" },
-        { id:"sandal", name:"Sandal", emoji:"🩴", desc:"Ringan dan mudah dipakai sehari-hari", baseQty:1, unit:"pasang" },
-      ]
-    },
-    toiletries: {
-      label: "Kebersihan & Toiletries", icon: "🪥",
-      items: [
-        { id:"sikat_gigi", name:"Sikat & Pasta Gigi", emoji:"🪥", desc:"Kebersihan gigi wajib dijaga", baseQty:1, unit:"set" },
-        { id:"sabun", name:"Sabun & Sampo", emoji:"🧴", desc:"Gunakan travel-size untuk koper lebih ringan", baseQty:1, unit:"set" },
-        { id:"deodoran", name:"Deodoran", emoji:"✨", desc:"Jaga kesegaran sepanjang hari", baseQty:1, unit:"buah" },
-        { id:"handuk", name:"Handuk Microfiber", emoji:"🏖️", desc:"Cepat kering dan hemat tempat", baseQty:1, unit:"buah" },
-        { id:"sunscreen", name:"Sunscreen SPF 50+", emoji:"🌞", desc:"Lindungi kulit dari paparan UV", baseQty:1, unit:"buah" },
-      ]
-    },
-    tech: {
-      label: "Gadget & Elektronik", icon: "📱",
-      items: [
-        { id:"charger", name:"Charger HP", emoji:"🔌", desc:"Jangan sampai ketinggalan!", baseQty:1, unit:"buah" },
-        { id:"powerbank", name:"Power Bank", emoji:"🔋", desc:"Cadangan daya saat jauh dari colokan", baseQty:1, unit:"buah" },
-        { id:"earphone", name:"Earphone / Headphone", emoji:"🎧", desc:"Teman setia di perjalanan panjang", baseQty:1, unit:"buah" },
-        { id:"kamera", name:"Kamera / Action Cam", emoji:"📷", desc:"Abadikan setiap momen terbaik", baseQty:1, unit:"buah" },
-      ]
-    },
-    kesehatan: {
-      label: "Kesehatan & P3K", icon: "💊",
-      items: [
-        { id:"obat_flu", name:"Obat Flu & Demam", emoji:"💊", desc:"Antisipasi perubahan cuaca", baseQty:1, unit:"paket" },
-        { id:"antasida", name:"Antasida", emoji:"🏥", desc:"Untuk masalah pencernaan akibat makanan baru", baseQty:1, unit:"paket" },
-        { id:"plester", name:"Plester & Betadine", emoji:"🩹", desc:"P3K dasar untuk luka kecil", baseQty:1, unit:"set" },
-        { id:"minyak_angin", name:"Minyak Angin / Balsem", emoji:"🌿", desc:"Andalan saat pusing atau mual", baseQty:1, unit:"buah" },
-      ]
-    },
-    dokumen: {
-      label: "Dokumen & Penting", icon: "📋",
-      items: [
-        { id:"ktp", name:"KTP / Identitas", emoji:"🪪", desc:"Wajib dibawa ke mana pun pergi", baseQty:1, unit:"buah" },
-        { id:"uang", name:"Uang Tunai", emoji:"💰", desc:"Siapkan secukupnya untuk kebutuhan darurat", baseQty:1, unit:"set" },
-        { id:"tiket", name:"Tiket & Booking", emoji:"🎫", desc:"Screenshot atau print untuk antisipasi no-signal", baseQty:1, unit:"set" },
-        { id:"dompet", name:"Dompet Travel", emoji:"👝", desc:"Simpan semua dokumen penting di satu tempat", baseQty:1, unit:"buah" },
-      ]
-    }
-  };
- 
-  // Extra items by trip type
-  var TYPE_EXTRAS = {
-    adventure: [
-      { cat:"pakaian", item: { id:"jaket", name:"Jaket / Windbreaker", emoji:"🧥", desc:"Perlindungan dari angin dan hujan", baseQty:1, unit:"buah" } },
-      { cat:"toiletries", item: { id:"lotion", name:"Lotion Anti-Serangga", emoji:"🦟", desc:"Penting untuk daerah alam terbuka", baseQty:1, unit:"buah" } },
-    ],
-    leisure: [
-      { cat:"pakaian", item: { id:"baju_renang", name:"Baju Renang", emoji:"🩱", desc:"Untuk aktivitas pantai dan kolam renang", baseQty:1, unit:"set" } },
-      { cat:"toiletries", item: { id:"lip_balm", name:"Lip Balm SPF", emoji:"💋", desc:"Lindungi bibir dari angin laut", baseQty:1, unit:"buah" } },
-    ],
-    city: [
-      { cat:"pakaian", item: { id:"kemeja", name:"Kemeja Smart Casual", emoji:"👔", desc:"Tampil rapi untuk restoran atau mall", baseQty:1, unit:"buah" } },
-    ],
-    culture: [
-      { cat:"pakaian", item: { id:"baju_sopan", name:"Pakaian Sopan / Sarung", emoji:"🧣", desc:"Wajib untuk memasuki tempat ibadah atau budaya", baseQty:1, unit:"set" } },
-    ]
-  };
- 
-  // ——— HELPERS ———
-  function today() {
-    var d = new Date();
-    var dd = String(d.getDate()).padStart(2,'0');
-    var mm = String(d.getMonth()+1).padStart(2,'0');
-    var yy = d.getFullYear();
-    return dd+'-'+mm+'-'+yy;
-  }
- 
-  function showToast(msg, icon) {
-    var t = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg || 'For Your Trip — Ready to Go!';
-    t.querySelector('.toast-icon').textContent = icon || '✈️';
-    t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); }, 3200);
-  }
- 
-  function switchPage(name, btn) {
-    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
-    document.getElementById('page-'+name).classList.add('active');
-    if(btn) btn.classList.add('active');
-    window.scrollTo(0,0);
-  }
- 
-  // ——— LOGIN ———
-  function loginUser() {
-    var name = document.getElementById('inp-name').value.trim();
-    if(!name){ showToast('Masukkan nama kamu dulu ya!','⚠️'); return; }
-    state.user = name;
-    document.getElementById('logged-in-info').style.display = 'block';
-    document.getElementById('logged-in-info').textContent = '✅ Halo, '+name+'! Siap jalan-jalan?';
-    showToast('Selamat datang, '+name+'! 🌿','👋');
-  }
- 
-  // ——— GENERATE PACKING ———
-  function generatePacking() {
-    var dest = document.getElementById('inp-dest').value.trim();
-    var days = parseInt(document.getElementById('inp-days').value);
-    var type = document.getElementById('inp-type').value;
-    var typeName = document.getElementById('inp-type').selectedOptions[0].text;
-    var daysLabel = document.getElementById('inp-days').selectedOptions[0].text;
- 
-    if(!dest){ showToast('Masukkan destinasi wisata dulu!','⚠️'); return; }
- 
-    // Build item list
-    var data = JSON.parse(JSON.stringify(BASE_ITEMS));
-    var extras = TYPE_EXTRAS[type] || [];
-    extras.forEach(function(e){
-      if(data[e.cat]) data[e.cat].items.push(e.item);
-    });
- 
-    // Multiply qty by days
-    Object.keys(data).forEach(function(cat){
-      data[cat].items.forEach(function(item){
-        if(['baju','celana','pakaian_dalam','kaos_kaki','baju_renang','kemeja','baju_sopan'].includes(item.id)){
-          item.qty = Math.max(1, Math.ceil(days * item.baseQty));
-        } else if(item.id === 'celana_pendek' || item.id === 'celana'){
-          item.qty = Math.max(1, Math.ceil(days / 2));
-        } else {
-          item.qty = item.baseQty;
-        }
+
+  <footer>
+    <p>&copy; 2026 Voyago - Smart Packing Assistant. Rapih, Siap, Berangkat!</p>
+  </footer>
+
+  <script>
+    // --- DATABASE MOCK (Menggunakan LocalStorage) ---
+    let inventory = JSON.parse(localStorage.getItem('voyago_inventory')) || [
+      { id: 1, name: "Kemeja Formal Putih", qty: 3, occasion: "formal" },
+      { id: 2, name: "Celana Bahan Hitam", qty: 2, occasion: "formal" },
+      { id: 3, name: "Jas", qty: 1, occasion: "formal" },
+      { id: 4, name: "Kemeja Pantai Motif Bunga", qty: 4, occasion: "pantai" },
+      { id: 5, name: "Celana Pendek Santai", qty: 5, occasion: "pantai" },
+      { id: 6, name: "Kacamata Hitam", qty: 1, occasion: "pantai" },
+      { id: 7, name: "Sunscreen / Lotion", qty: 2, occasion: "pantai" },
+      { id: 8, name: "Jaket Windproof Waterproof", qty: 1, occasion: "gunung" },
+      { id: 9, name: "Sepatu Tracking", qty: 1, occasion: "gunung" },
+      { id: 10, name: "Pakaian Dalam", qty: 10, occasion: "umum" },
+      { id: 11, name: "Sikat Gigi & Odol", qty: 1, occasion: "umum" },
+      { id: 12, name: "Pengisi Daya (Charger)", qty: 2, occasion: "umum" }
+    ];
+
+    let historyTrips = JSON.parse(localStorage.getItem('voyago_history')) || [];
+    let currentGeneratedList = null;
+
+    // --- LOGIKA SPA NAVIGATION ---
+    function switchPage(pageId) {
+      // Sembunyikan semua halaman
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active-page');
       });
-    });
- 
-    state.currentTrip = { dest:dest, days:days, daysLabel:daysLabel, type:type, typeName:typeName, data:data };
-    state.checkedItems = {};
-    state.activeHistoryIndex = -1;
- 
-    // Update result page
-    document.getElementById('res-dest').textContent = dest;
-    document.getElementById('res-dur').textContent = daysLabel;
-    document.getElementById('res-type').textContent = typeName;
-    document.getElementById('res-sub').textContent = 'Untuk '+days+' hari perjalanan ke '+dest+'. Ceklis barang saat sudah dikemas!';
- 
-    renderChecklist(data);
-    renderCards(data);
-    updateProgress();
- 
-    switchPage('result', document.querySelectorAll('.nav-btn')[1]);
-    showToast('Daftar bawaan untuk '+dest+' siap! 🧳','✈️');
-  }
- 
-  function renderChecklist(data) {
-    var cont = document.getElementById('checklist-container');
-    cont.innerHTML = '';
-    Object.keys(data).forEach(function(catKey){
-      var cat = data[catKey];
-      var div = document.createElement('div');
-      div.className = 'checklist-category';
-      var items = cat.items.map(function(item){
-        var checked = state.checkedItems[item.id] ? 'checked' : '';
-        var tick = checked ? '✓' : '';
-        return '<div class="check-item '+checked+'" onclick="toggleCheck(this,\''+item.id+'\')">' +
-          '<div class="check-box"><span class="check-tick">'+tick+'</span></div>' +
-          '<div class="check-text">' +
-            '<div class="check-name">'+item.emoji+' '+item.name+'</div>' +
-            '<div class="check-desc">'+item.desc+'</div>' +
-          '</div>' +
-          '<span class="check-qty">×'+item.qty+'</span>' +
-          '<button class="fav-btn" onclick="toggleFav(event,'+JSON.stringify(item)+')">'+
-            (isFav(item.id)?'⭐':'☆')+'</button>' +
-        '</div>';
-      }).join('');
-      div.innerHTML = '<div class="cat-header">' +
-        '<div class="cat-icon">'+cat.icon+'</div>' +
-        '<div class="cat-title">'+cat.label+'</div>' +
-        '<div class="cat-count">'+cat.items.length+' item</div>' +
-        '</div>' +
-        '<div class="checklist-items">'+items+'</div>';
-      cont.appendChild(div);
-    });
-  }
- 
-  function renderCards(data) {
-    var cont = document.getElementById('cards-container');
-    cont.innerHTML = '';
-    var featured = [];
-    Object.keys(data).forEach(function(cat){
-      data[cat].items.slice(0,2).forEach(function(item){ featured.push(item); });
-    });
-    document.getElementById('badge-count').textContent = featured.length+' item';
-    featured.forEach(function(item){
-      var card = document.createElement('div');
-      card.className = 'item-card';
-      card.innerHTML = '<div class="item-card-img">'+item.emoji+'</div>' +
-        '<div class="item-card-body">' +
-          '<div class="item-card-name">'+item.name+'</div>' +
-          '<div class="item-card-desc">'+item.desc+'</div>' +
-        '</div>' +
-        '<div class="item-card-footer">' +
-          '<span class="check-qty">×'+item.qty+' '+item.unit+'</span>' +
-          '<button class="fav-btn" onclick="toggleFav(event,'+JSON.stringify(item)+')">'+
-            (isFav(item.id)?'⭐':'☆')+'</button>' +
-        '</div>';
-      cont.appendChild(card);
-    });
-  }
- 
-  function toggleCheck(el, id) {
-    el.classList.toggle('checked');
-    state.checkedItems[id] = el.classList.contains('checked');
-    var tick = el.querySelector('.check-tick');
-    if(tick) tick.textContent = el.classList.contains('checked') ? '✓' : '';
-    updateProgress();
-    var name = el.querySelector('.check-name').textContent;
-    if(el.classList.contains('checked')) showToast(name+' sudah dikemas! 📦','✅');
-  }
- 
-  function updateProgress() {
-    var all = document.querySelectorAll('.check-item');
-    var done = document.querySelectorAll('.check-item.checked');
-    var pct = all.length ? Math.round((done.length/all.length)*100) : 0;
-    document.getElementById('prog-fill').style.width = pct+'%';
-    document.getElementById('prog-text').textContent = done.length+' / '+all.length+' item';
-    if(pct === 100 && all.length > 0) showToast('Semua barang sudah dikemas! Selamat berlibur! 🎉','🎊');
-    // Sync checkedItems ke riwayat yang sedang aktif
-    if(state.activeHistoryIndex >= 0 && state.history[state.activeHistoryIndex]){
-      state.history[state.activeHistoryIndex].checkedItems = JSON.parse(JSON.stringify(state.checkedItems));
-      renderHistory();
+      // Matikan status aktif navigasi
+      document.querySelectorAll('nav ul li a').forEach(nav => {
+        nav.classList.remove('active');
+      });
+
+      // Aktifkan halaman & nav terpilih
+      document.getElementById(`page-${pageId}`).classList.add('active-page');
+      document.getElementById(`nav-${pageId}`).classList.add('active');
+
+      // Refresh data tampilan tiap kali pindah halaman
+      if (pageId === 'inventory') displayInventory();
+      if (pageId === 'history') displayHistory();
     }
-  }
- 
-  // ——— FAVORITES ———
-  function isFav(id){ return state.favorites.some(function(f){ return f.id===id; }); }
- 
-  function toggleFav(e, item) {
-    e.stopPropagation();
-    var btn = e.currentTarget;
-    if(isFav(item.id)){
-      state.favorites = state.favorites.filter(function(f){ return f.id!==item.id; });
-      btn.textContent = '☆';
-      showToast(item.name+' dihapus dari favorit','💔');
-    } else {
-      state.favorites.push(item);
-      btn.textContent = '⭐';
-      showToast(item.name+' ditambahkan ke favorit! ⭐','⭐');
-    }
-    renderFavorites();
-    // Update all fav buttons with same id
-    document.querySelectorAll('.fav-btn').forEach(function(b){
-      if(b.closest('.check-item') && b.closest('.check-item').querySelector('.check-name').textContent.includes(item.name)){
-        b.textContent = isFav(item.id) ? '⭐' : '☆';
+
+    // --- FUNGSI HALAMAN INVENTORY ---
+    function displayInventory() {
+      const listContainer = document.getElementById('inventory-list');
+      listContainer.innerHTML = '';
+
+      if (inventory.length === 0) {
+        listContainer.innerHTML = '<p style="color: var(--text-muted)">Lemari kosong. Ayo tambahkan barang bawaan Anda!</p>';
+        return;
       }
-    });
-  }
- 
-  function renderFavorites() {
-    var cont = document.getElementById('fav-list');
-    if(!state.favorites.length){
-      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">⭐</div><div class="empty-title">Belum Ada Favorit</div><div class="empty-desc">Tap ikon bintang pada barang bawaan untuk menyimpannya di sini.</div></div>';
-      return;
+
+      inventory.forEach(item => {
+        let occBadge = "";
+        if(item.occasion === 'pantai') occBadge = "Pantai";
+        if(item.occasion === 'formal') occBadge = "Formal";
+        if(item.occasion === 'gunung') occBadge = "Gunung";
+        if(item.occasion === 'umum') occBadge = "Umum";
+
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.innerHTML = `
+          <div class="item-info">
+            <h4>${item.name}</h4>
+            <p style="font-size: 0.9rem; color: var(--green-100)">Jumlah milik: <strong>${item.qty}</strong></p>
+            <span>${occBadge}</span>
+          </div>
+          <button class="btn-delete" onclick="deleteItem(${item.id})">&times;</button>
+        `;
+        listContainer.appendChild(div);
+      });
     }
-    cont.innerHTML = state.favorites.map(function(item){
-      return '<div class="fav-card">' +
-        '<div class="fav-card-icon">'+item.emoji+'</div>' +
-        '<div class="fav-card-body">' +
-          '<div class="fav-card-name">'+item.name+'</div>' +
-          '<div class="fav-card-meta">'+item.desc+'</div>' +
-        '</div>' +
-        '<button class="fav-remove" onclick="removeFav(\''+item.id+'\')">Hapus</button>' +
-      '</div>';
-    }).join('');
-  }
- 
-  function removeFav(id){
-    state.favorites = state.favorites.filter(function(f){ return f.id!==id; });
-    renderFavorites();
-    showToast('Dihapus dari favorit','💔');
-  }
- 
-  // ——— HISTORY ———
-  function saveToHistory(){
-    if(!state.currentTrip){ showToast('Buat rencana perjalanan dulu!','⚠️'); return; }
-    var entry = {
-      dest: state.currentTrip.dest,
-      dur: state.currentTrip.daysLabel,
-      days: state.currentTrip.days,
-      type: state.currentTrip.typeName,
-      tripType: state.currentTrip.type,
-      date: today(),
-      data: JSON.parse(JSON.stringify(state.currentTrip.data)),
-      checkedItems: JSON.parse(JSON.stringify(state.checkedItems))
-    };
-    state.history.unshift(entry);
-    renderHistory();
-    showToast('Perjalanan ke '+entry.dest+' tersimpan! 📖','💾');
-  }
- 
-  function renderHistory(){
-    var cont = document.getElementById('history-list');
-    if(!state.history.length){
-      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">🗺️</div><div class="empty-title">Belum Ada Riwayat</div><div class="empty-desc">Buat rencana perjalanan dan simpan untuk melihatnya di sini.</div></div>';
-      return;
+
+    function addItem(e) {
+      e.preventDefault();
+      const name = document.getElementById('item-name').value;
+      const qty = parseInt(document.getElementById('item-qty').value);
+      const occasion = document.getElementById('item-occasion').value;
+
+      const newItem = {
+        id: Date.now(),
+        name,
+        qty,
+        occasion
+      };
+
+      inventory.push(newItem);
+      localStorage.setItem('voyago_inventory', JSON.stringify(inventory));
+      displayInventory();
+      document.getElementById('inventory-form').reset();
+      document.getElementById('item-qty').value = 1;
     }
-    cont.innerHTML = state.history.map(function(h, i){
-      var total = 0, done = 0;
-      Object.keys(h.data).forEach(function(cat){ total += h.data[cat].items.length; });
-      Object.keys(h.checkedItems).forEach(function(k){ if(h.checkedItems[k]) done++; });
-      var pct = total ? Math.round((done/total)*100) : 0;
-      return '<div class="history-card" onclick="loadHistory('+i+')">' +
-        '<div class="history-date">'+h.date+'</div>' +
-        '<div class="history-info">' +
-          '<div class="history-dest">✈️ '+h.dest+'</div>' +
-          '<div class="history-dur">'+h.dur+' · '+h.type+'</div>' +
-          '<div style="margin-top:6px;height:4px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;width:100%;">' +
-            '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--green-500),var(--yellow-400));border-radius:100px;"></div>' +
-          '</div>' +
-          '<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Packing: '+done+'/'+total+' item ('+pct+'%)</div>' +
-        '</div>' +
-        '<span class="history-arr">›</span>' +
-      '</div>';
-    }).join('');
-  }
- 
-  function loadHistory(i){
-    var h = state.history[i];
-    state.activeHistoryIndex = i;
-    // Restore trip state dari riwayat
-    state.currentTrip = {
-      dest: h.dest,
-      days: h.days,
-      daysLabel: h.dur,
-      type: h.tripType,
-      typeName: h.type,
-      data: JSON.parse(JSON.stringify(h.data))
-    };
-    state.checkedItems = JSON.parse(JSON.stringify(h.checkedItems));
- 
-    // Update result page
-    document.getElementById('res-dest').textContent = h.dest;
-    document.getElementById('res-dur').textContent = h.dur;
-    document.getElementById('res-type').textContent = h.type;
-    document.getElementById('res-sub').textContent = 'Riwayat perjalanan '+h.days+' hari ke '+h.dest+' — '+h.date;
- 
-    renderChecklist(state.currentTrip.data);
-    renderCards(state.currentTrip.data);
-    updateProgress();
- 
-    switchPage('result', document.querySelectorAll('.nav-btn')[1]);
-    showToast('Memuat riwayat perjalanan ke '+h.dest,'📂');
-  }
- 
-  // ——— PWA SERVICE WORKER ———
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(function(){ console.log('SW registered!'); })
-      .catch(function(err){ console.error('SW gagal:', err); });
-  }
- 
-  // ——— INIT ———
-  setTimeout(function(){
-    showToast('For Your Trip — Ready to Go! 🌿','✈️');
-  }, 800);
-</script>
+
+    function deleteItem(id) {
+      inventory = inventory.filter(item => item.id !== id);
+      localStorage.setItem('voyago_inventory', JSON.stringify(inventory));
+      displayInventory();
+    }
+
+    // --- FUNGSI HALAMAN UTAMA (ASISTEN SMART PACKING) ---
+    function generatePackingList() {
+      const selectedOccasion = document.getElementById('trip-occasion').value;
+      const duration = parseInt(document.getElementById('trip-duration').value);
+      
+      // Filter barang: Ambil barang dengan kategori yang COCOK atau berkategori 'UMUM'
+      const filteredItems = inventory.filter(item => item.occasion === selectedOccasion || item.occasion === 'umum');
+      
+      const checklistContainer = document.getElementById('packing-checklist');
+      checklistContainer.innerHTML = '';
+      
+      if (filteredItems.length === 0) {
+        alert("Lemari barang Anda tidak memiliki barang yang cocok dengan tema ini. Mohon isi lemari digital Anda terlebih dahulu!");
+        return;
+      }
+
+      let generatedSummaryItems = [];
+
+      filteredItems.forEach(item => {
+        // Logika Pintar: Jumlah yang dibawa disesuaikan dengan hari, namun tidak melebihi stok lemari kita
+        // Misalnya pakaian disesuaikan dikali hari, jika aksesoris (kacamata/charger) tetap secukupnya.
+        let PackingQty = 1;
+        
+        if (item.name.toLowerCase().includes('baju') || 
+            item.name.toLowerCase().includes('kemeja') || 
+            item.name.toLowerCase().includes('celana') || 
+            item.name.toLowerCase().includes('pakaian')) {
+          PackingQty = Math.min(item.qty, duration); // bawa sebanyak hari liburan, maksimal stok lemari
+        } else {
+          PackingQty = item.qty; // bawa seluruh persediaan yang ada (lotion, kacamata, dll)
+        }
+
+        generatedSummaryItems.push({
+          name: item.name,
+          qtyNeeded: PackingQty
+        });
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <input type="checkbox">
+          <span><strong>${PackingQty}x</strong> ${item.name}</span>
+        `;
+        checklistContainer.appendChild(li);
+      });
+
+      // Simpan keadaan sementara objek hasil kalkulasi
+      currentGeneratedList = {
+        occasion: selectedOccasion,
+        duration: duration,
+        items: generatedSummaryItems
+      };
+
+      // Tampilkan kontainer hasil analisis
+      document.getElementById('result-card').style.display = 'block';
+      document.getElementById('result-summary').innerText = `Ditemukan ${filteredItems.length} jenis barang yang cocok dari lemari Anda untuk perjalanan ${duration} hari.`;
+    }
+
+    // --- FUNGSI SIMPAN & RIWAYAT ---
+    function saveCurrentTrip() {
+      if (!currentGeneratedList) return;
+
+      const titlePrompt = prompt("Beri nama rencana perjalanan ini:", `Liburan ke ${document.getElementById('trip-occasion').options[document.getElementById('trip-occasion').selectedIndex].text.split(' ').slice(1).join(' ')}`);
+      
+      if (titlePrompt === null || titlePrompt.trim() === "") {
+        alert("Rencana batal disimpan atau nama tidak boleh kosong.");
+        return;
+      }
+
+      const saveDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+      
+      const tripToSave = {
+        id: Date.now(),
+        title: titlePrompt,
+        date: saveDate,
+        duration: currentGeneratedList.duration,
+        items: currentGeneratedList.items
+      };
+
+      historyTrips.unshift(tripToSave);
+      localStorage.setItem('voyago_history', JSON.stringify(historyTrips));
+      alert("🎉 Rencana packing berhasil disimpan ke menu Riwayat!");
+      switchPage('history');
+    }
+
+    function displayHistory() {
+      const container = document.getElementById('history-container');
+      container.innerHTML = '';
+
+      if (historyTrips.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted)">Belum ada rencana packing yang disimpan.</p>';
+        return;
+      }
+
+      historyTrips.forEach(trip => {
+        const itemString = trip.items.map(i => `${i.qtyNeeded}x ${i.name}`).join(', ');
+        
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+          <div class="history-header">
+            <span>📌 ${trip.title} (${trip.duration} Hari)</span>
+            <span style="color: var(--text-muted); font-size:0.85rem">${trip.date}</span>
+          </div>
+          <p style="font-size:0.95rem; color: var(--green-100)"><strong>Bawaan:</strong> ${itemString}</p>
+          <button onclick="deleteHistory(${trip.id})" style="background:none; border:none; color:#ef4444; font-size:0.8rem; cursor:pointer; margin-top:0.5rem; text-decoration:underline;">Hapus Catatan</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function deleteHistory(id) {
+      if(confirm("Apakah Anda yakin ingin menghapus riwayat ini?")) {
+        historyTrips = historyTrips.filter(t => t.id !== id);
+        localStorage.setItem('voyago_history', JSON.stringify(historyTrips));
+        displayHistory();
+      }
+    }
+  </script>
 </body>
 </html>
- 
